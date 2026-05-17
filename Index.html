@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Portal - KBrest</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            max-width: 100%;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00d4ff;
+            margin-bottom: 30px;
+            text-align: center;
+            text-shadow: 0 0 10px #00d4ff;
+        }
+
+        .user-info {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .user-balance {
+            font-size: 20px;
+            font-weight: bold;
+            color: #00ff88;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .user-id {
+            font-size: 12px;
+            color: #888;
+            text-align: center;
+        }
+
+        .nav-menu {
+            flex: 1;
+            list-style: none;
+        }
+
+        .nav-item {
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .nav-item:hover {
+            background: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, #00d4ff, #0099cc);
+            color: white;
+        }
+
+        /* Main Game Area */
+        .game-container {
+            flex: 1;
+            position: relative;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .game-header {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .game-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+
+        .game-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .game-frame {
+            flex: 1;
+            width: 100%;
+            border: none;
+            background: #000;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 240px;
+                transform: translateX(-100%);
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100vh;
+                z-index: 1000;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .game-header {
+                padding: 10px;
+            }
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 10px;
+        }
+
+        /* Loading Animation */
+        .loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(0, 212, 255, 0.3);
+            border-top: 3px solid #00d4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #00d4ff;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="logo">🎮 KBrest</div>
+            <div class="user-info">
+                <div class="user-balance" id="balance">$0.00</div>
+                <div class="user-id" id="userId">Loading...</div>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active" data-game="204">
+                    <span>🎯 Game 204</span>
+                </li>
+                <li class="nav-item" data-game="203">
+                    <span>⚡ Game 203</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Game Container -->
+        <div class="game-container">
+            <div class="game-header">
+                <button class="menu-toggle" id="menuToggle">☰</button>
+                <div class="game-title" id="gameTitle">Game 204</div>
+                <div class="game-controls">
+                    <button class="btn btn-primary" id="fullscreenBtn">⛶ Fullscreen</button>
+                    <button class="btn btn-secondary" id="refreshBtn">🔄 Refresh</button>
+                </div>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div class="loading-text">Loading Game...</div>
+            </div>
+            
+            <iframe 
+                class="game-frame" 
+                id="gameFrame"
+                src="https://ab-res-gf237asd.newkbrest8bfd23f.com/res/prod/2/203/1.5.5/index.html?token=dXVpZD1LQnByZElOUl9BUmdhbWU6MTA1MTAwMjAzNjg0ODAmdWlkPTEyNTkzMzcxNiZ0b2tlbj0zMTMzMzQzOTM4NUY1MDZENTU3MTc0NEU2Mzc4NTkzNjZENzY1NTYyNDY0NTQxNkE3Mjc0NjM0MTM5NjMzNDc0NkI1QTRDNEQzODQ2NTgzMDY4MzgzMDQxMzk2QTU2MzE0MTNEJmJhbGFuY2U9MCZnYW1lPTIwNCZnYW1laW5mbz17ImV4dGVybl9qc29uIjoiIiwiZnVsbHNjcmVlbiI6MCwibGFuZyI6ImVuLVVTIn0mZXhwaT0xNzc5MTY5MDE5JnNpZ249YzgzZTgwZGY3YTVmM2U1ZWFiNzY5ZTkwZTFlOTZhNjk=&agent=d3NzOi8va2Itd3NzLTAzLWRoMjlha20ua2I5ZDEyM3U5Zi5jb20vYWdlbnQ=&gameID=204&DisplayMode=1&lang=en-US&uid=125933716"
+                frameborder="0"
+                allowfullscreen
+            ></iframe>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const sidebar = document.getElementById('sidebar');
+        const menuToggle = document.getElementById('menuToggle');
+        const gameFrame = document.getElementById('gameFrame');
+        const loading = document.getElementById('loading');
+        const navItems = document.querySelectorAll('.nav-item');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const balanceEl = document.getElementById('balance');
+        const userIdEl = document.getElementById('userId');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                loading.style.display = 'none';
+            }, 2000);
+
+            // Set user info from URL params
+            const urlParams = new URLSearchParams(window.location.search);
+            const uid = urlParams.get('uid') || '125933716';
+            userIdEl.textContent = `ID: ${uid}`;
+            balanceEl.textContent = '$0.00';
+        });
+
+        // Mobile menu toggle
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+
+        // Navigation
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                navItems.forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+                
+                const gameId = item.dataset.game;
+                loadGame(gameId);
+            });
+        });
+
+        function loadGame(gameId) {
+            const baseUrl = 'https://ab-res-gf237asd.newkbrest8bfd23f.com/res/prod/2/203/1.5.5/index.html';
+            const token = 'dXVpZD1LQnByZElOUl9BUmdhbWU6MTA1MTAwMjAzNjg0ODAmdWlkPTEyNTkzMzcxNiZ0b2tlbj0zMTMzMzQzOTM4NUY1MDZENTU3MTc0NEU2Mzc4NTkzNjZENzY1NTYyNDY0NTQxNkE3Mjc0NjM0MTM5NjMzNDc0NkI1QTRDNEQzODQ2NTgzMDY4MzgzMDQxMzk2QTU2MzE0MTNE';
+            const fullUrl = `${baseUrl}?token=${token}&gameID=${gameId}&DisplayMode=1&lang=en-US&uid=125933716`;
+            
+            loading.style.display = 'flex';
+            gameFrame.src = fullUrl;
+            
+            setTimeout(() => {
+                loading.style.display = 'none';
+            }, 2000);
+        }
+
+        // Fullscreen
+        fullscreenBtn.addEventListener('click', () => {
+            if (gameFrame.requestFullscreen) {
+                gameFrame.requestFullscreen();
+            }
+        });
+
+        // Refresh
+        refreshBtn.addEventListener('click', () => {
+            gameFrame.src = gameFrame.src;
+        });
+
+        // Close sidebar on outside click (mobile)
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
+
+        // Handle iframe load
+        gameFrame.addEventListener('load', () => {
+            loading.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
